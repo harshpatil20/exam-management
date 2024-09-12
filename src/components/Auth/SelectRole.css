@@ -1,0 +1,63 @@
+/* src/components/Auth/SelectRole.css */
+
+.select-role-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: #f0f2f5; /* Light background color */
+}
+
+.select-role-box {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.select-role-box h1 {
+    margin-bottom: 30px;
+    font-size: 24px;
+    color: #333;
+}
+
+/* Ensure there is spacing between buttons */
+.select-role-button {
+    width: 200px;
+    padding: 12px;
+    margin: 0 10px; /* Add horizontal margin between buttons */
+    font-size: 16px;
+    color: #fff;
+    background-color: #4CAF50; /* Default button color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Student button styles */
+.select-role-button.student {
+    background-color: #007BFF; /* Blue for Student */
+}
+
+.select-role-button.student:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.select-role-button.student:active {
+    background-color: #004085; /* Even darker blue on click */
+}
+
+/* Teacher button styles */
+.select-role-button.teacher {
+    background-color: #28a745; /* Green for Teacher */
+}
+
+.select-role-button.teacher:hover {
+    background-color: #218838; /* Darker green on hover */
+}
+
+.select-role-button.teacher:active {
+    background-color: #1e7e34; /* Even darker green on click */
+}

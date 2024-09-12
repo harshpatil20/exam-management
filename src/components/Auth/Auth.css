@@ -1,42 +1,73 @@
-/* src/components/Auth/Auth.css */
-.role-selection-container, .login-container {
-    margin: 0 auto;
+/* src/components/Auth/Login.css */
+
+/* General container styling for both login forms */
+.login-container {
     max-width: 400px;
+    margin: 0 auto;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.role-selection-container h1, .login-container h1 {
+.login-container h1 {
     margin-bottom: 20px;
+    text-align: center;
 }
 
-.role-button, .login-button {
+/* Form styling */
+.login-container form {
     width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border: none;
-    background-color: #4CAF50;
-    color: white;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.role-button:hover, .login-button:hover {
-    background-color: #45a049;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .login-container input {
     width: 100%;
     padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 5px;
+    box-sizing: border-box;
 }
 
+/* Common submit button styling */
+.submit-button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* Teacher login button color */
+.teacher-login .submit-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.teacher-login .submit-button:hover {
+    background-color: #45a049;
+}
+
+/* Student login button color */
+.student-login .submit-button {
+    background-color: #2196F3;
+    color: white;
+}
+
+.student-login .submit-button:hover {
+    background-color: #1976D2;
+}
+
+/* Error message styling */
 .error-message {
     color: red;
     margin-top: 10px;
+    text-align: center;
 }

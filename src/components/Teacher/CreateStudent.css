@@ -1,0 +1,41 @@
+.create-student-container {
+    margin: 0 auto;
+    max-width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.create-student-container h1 {
+    margin-bottom: 20px;
+}
+
+.create-student-container input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.create-student-container .submit-button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.create-student-container .submit-button:hover {
+    background-color: #45a049;
+}
+
+.success-message {
+    color: green;
+    margin-top: 10px;
+}

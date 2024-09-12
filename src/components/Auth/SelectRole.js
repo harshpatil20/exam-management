@@ -1,24 +1,30 @@
 // src/components/Auth/SelectRole.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Auth.css';
+import './SelectRole.css';  // Make sure the path is correct
 
 const SelectRole = () => {
     const navigate = useNavigate();
 
-    const handleRoleSelection = (role) => {
-        if (role === 'teacher') {
-            navigate('/login');
-        } else {
-            alert("Student portal is under construction.");
-        }
+    const handleStudentLogin = () => {
+        navigate('/student-login');
+    };
+
+    const handleTeacherLogin = () => {
+        navigate('/login');
     };
 
     return (
-        <div className="role-selection-container">
-            <h1>Select Your Role</h1>
-            <button onClick={() => handleRoleSelection('teacher')} className="role-button">Teacher</button>
-            <button onClick={() => handleRoleSelection('student')} className="role-button">Student</button>
+        <div className="select-role-container">
+            <div className="select-role-box">
+                <h1>Select Your Role</h1>
+                <button className="select-role-button student" onClick={handleStudentLogin}>
+                    Student
+                </button>
+                <button className="select-role-button teacher" onClick={handleTeacherLogin}>
+                    Teacher
+                </button>
+            </div>
         </div>
     );
 };
