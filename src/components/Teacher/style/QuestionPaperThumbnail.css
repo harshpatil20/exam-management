@@ -1,0 +1,48 @@
+/* src/components/Teacher/Dashboard.css */
+
+/* Container for the question paper grid */
+.question-papers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Create a responsive grid with minimum width of 200px for each thumbnail */
+    gap: 20px; /* Space between thumbnails */
+    margin-top: 20px;
+}
+
+/* Styling for the grid items (thumbnails) */
+.paper-thumbnail {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.paper-thumbnail h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+/* Hover effect */
+.paper-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+.edit-btn, .delete-btn {
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: #4CAF50;
+}
+
+.delete-btn {
+    background-color: #f44336;
+}

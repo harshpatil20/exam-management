@@ -8,6 +8,10 @@ import TeacherDashboard from './components/Teacher/Dashboard';
 import CreateStudent from './components/Teacher/createStudent';
 
 import StudentDashboard from './components/Student/StudentDashboard';
+import CreateQuestionPaper from './components/Teacher/CreateQuestionPaper';
+
+import EditQuestionPaper from './components/Teacher/EditQuestionPaper';
+
 
 function App() {
     return (
@@ -20,6 +24,10 @@ function App() {
                     <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
                     <Route path="/teacher/create-student" element={<CreateStudent />} />
                     <Route path="/student/dashboard" element={<StudentDashboard />} />
+                    <Route path="/teacher/create-question-paper" element={<CreateQuestionPaper />} />
+                    <Route path="/teacher/edit-question-paper/:id" component={EditQuestionPaper} />
+
+
                 </Routes>
             </div>
         </Router>
