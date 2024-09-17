@@ -46,3 +46,14 @@
 .delete-btn {
     background-color: #f44336;
 }
+
+.initiate-btn {
+    background-color: hsl(50, 86%, 57%);
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}

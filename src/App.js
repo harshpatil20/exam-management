@@ -1,6 +1,6 @@
 // src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Switch } from 'react-router-dom';
 import SelectRole from './components/Auth/SelectRole';
 import Login from './components/Auth/Login';
 import StudentLogin from './components/Auth/StudentLogin';
@@ -12,10 +12,13 @@ import CreateQuestionPaper from './components/Teacher/CreateQuestionPaper';
 
 import EditQuestionPaper from './components/Teacher/EditQuestionPaper';
 
+import TakeTest from './components/Student/TakeTest';
+import { StudentProvider } from './context/StudentContext';
 
 function App() {
     return (
         <Router>
+          
             <div className="App">
                 <Routes>
                     <Route path="/" element={<SelectRole />} />
@@ -26,10 +29,15 @@ function App() {
                     <Route path="/student/dashboard" element={<StudentDashboard />} />
                     <Route path="/teacher/create-question-paper" element={<CreateQuestionPaper />} />
                     <Route path="/teacher/edit-question-paper/:id" component={EditQuestionPaper} />
+                    {/* <Route path="/student/take-test/:id" component={TakeTest} /> */}
+                    {/* <Route path='/student/take-test/:id' element={<TakeTest />} /> */}
+                    <Route path="/student/take-test/:id" element={<TakeTest/>} exact />
+
 
 
                 </Routes>
             </div>
+         
         </Router>
     );
 }

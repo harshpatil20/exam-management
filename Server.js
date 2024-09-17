@@ -7,9 +7,18 @@ const { Pool } = require('pg');
 const cors = require('cors');
 
 
+const session = require('express-session');
+
 
 const app = express();
 
+
+app.use(session({
+    secret: '9c2d4f27d8c07d917b0e5f3e5bc2b5a1a8631e12a78a37b98b6d6c5f6e8f6a2b0', // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true } // Set to true if using HTTPS
+}));
 // app.use(cors({
 //     origin: 'http://localhost:3000', // Allow only this origin
 //     methods: 'GET,POST', // Allow only specific HTTP methods
@@ -25,6 +34,7 @@ const pool = new Pool({
     port: 5432,
 });
 
+ let sId;
 app.use(bodyParser.json());
 
 app.post('/api/login', async (req, res) => {
@@ -94,8 +104,12 @@ app.post('/api/student-login', async (req, res) => {
             return res.json({ success: false, message: 'User not found' });
         }
 
+
         const student = result.rows[0];
-        console.log(student);
+        const studentId = result.rows[0].id;
+        req.session.studentId = studentId;
+         sId = req.session.studentId
+        console.log( req.session.studentId);
 
         // Compare the plain text password with the hashed password stored in DB
         const match = await bcrypt.compare(password, student.password);
@@ -134,19 +148,39 @@ app.post('/api/create-question-paper', async (req, res) => {
 
         // Insert the questions and options
         for (let question of questions) {
+            // First, insert the question without the correct option (we'll update it later)
             const questionResult = await pool.query(
-                'INSERT INTO questions (paper_id, question_text, correct_option) VALUES ($1, $2, $3) RETURNING id',
-                [paperId, question.question, question.correctOption]
+                'INSERT INTO questions (paper_id, question_text) VALUES ($1, $2) RETURNING id',
+                [paperId, question.question]
             );
             const questionId = questionResult.rows[0].id;
 
+            let correctOptionId = null;
+
             // Insert options for each question
             for (let i = 0; i < question.options.length; i++) {
-                await pool.query(
-                    'INSERT INTO options (question_id, option_text) VALUES ($1, $2)',
+                const optionResult = await pool.query(
+                    'INSERT INTO options (question_id, option_text) VALUES ($1, $2) RETURNING id',
                     [questionId, question.options[i]]
                 );
+                const optionId = optionResult.rows[0].id;
+
+                console.log("option id    :::  "+optionId)
+
+                // Check if this is the correct option and store the option ID
+                console.log(i)
+                console.log(question.correctOption)
+               
+                if ( i === parseInt(question.correctOption, 10)) {
+                    correctOptionId = optionId;
+                }
             }
+
+            // Now that we have the correct option ID, update the question with the correct_option ID
+            await pool.query(
+                'UPDATE questions SET correct_option_id = $1 WHERE id = $2',
+                [correctOptionId, questionId]
+            );
         }
 
         res.json({ success: true });
@@ -155,6 +189,7 @@ app.post('/api/create-question-paper', async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
+
 
 
 
@@ -224,6 +259,175 @@ app.get('/api/question-paper/:id', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ success: false, message: 'Failed to fetch question paper' });
+    }
+});
+
+// server.js
+app.post('/api/initiate-question-paper/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Assuming we have a `question_papers` table with a `status` field that can be updated
+        const result = await pool.query('UPDATE question_papers SET status = $1 WHERE id = $2', ['initiated', id]);
+        if (result.rowCount > 0) {
+            res.json({ success: true, message: 'Question paper initiated successfully' });
+        } else {
+            res.json({ success: false, message: 'Question paper not found' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to initiate question paper' });
+    }
+});
+
+
+// server.js
+app.get('/api/initiated-question-papers', async (req, res) => {
+    try {
+        // Fetch only question papers with status = 'initiated'
+        const result = await pool.query('SELECT * FROM question_papers WHERE status = $1', ['initiated']);
+        res.json({ success: true, papers: result.rows });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to fetch initiated question papers' });
+    }
+});
+
+
+
+// server.js
+// server.js
+app.post('/api/question-paper/:id/submit', async (req, res) => {
+    const { id } = req.params;
+    const { answers } = req.body;
+    const studentId = req.session.studentId; // Retrieve studentId from session
+
+    console.log(sId+"new session submit")
+    // if (!studentId) {
+    //     return res.status(400).json({ success: false, message: 'Not authenticated' });
+    // }
+
+    try {
+
+        const submissionCheck = await pool.query(
+            'SELECT * FROM submissions WHERE student_id = $1 AND paper_id = $2',
+            [studentId, id]
+        );
+
+        if (submissionCheck.rows.length > 0) {
+            return res.status(400).json({ success: false, message: 'Response already submitted' });
+        }
+
+        // Fetch all questions for the paper to ensure you get the total number of questions
+        const questionResult = await pool.query('SELECT id, correct_option_id FROM questions WHERE paper_id = $1', [id]);
+        const questions = questionResult.rows;
+
+        let totalQuestions = questions.length;
+        let correctAnswers = 0;
+
+        for (const question of questions) {
+            const questionId = question.id;
+            const correctOptionId = question.correct_option_id;
+
+            console.log("corerct option ::::"+correctOptionId);
+
+            // Compare the submitted answer with the correct answer
+            const submittedOptionId = answers[questionId]; // Get the submitted option for this question
+            console.log("submitted option id ::::"+submittedOptionId)
+            const isCorrect = parseInt(submittedOptionId) === correctOptionId;
+
+            console.log("iscorrect? "+isCorrect)
+            if (isCorrect) {
+                correctAnswers++;
+            }
+
+            // Insert submission into the database
+            await pool.query(
+                'INSERT INTO submissions (student_id, paper_id, question_id, selected_option_id, correct) VALUES ($1, $2, $3, $4, $5)',
+                [sId, id, questionId, submittedOptionId, isCorrect]
+            );
+        }
+
+        // Calculate the percentage of correct answers
+        const percentage = (correctAnswers / totalQuestions) * 100;
+
+        // Store the score in the scores table
+        await pool.query(
+            'INSERT INTO scores (student_id, paper_id, score) VALUES ($1, $2, $3) ON CONFLICT (student_id, paper_id) DO UPDATE SET score = EXCLUDED.score',
+            [sId, id, percentage]
+        );
+
+        res.json({ success: true, message: 'Test submitted successfully!', percentage });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to submit the test.' });
+    }
+});
+
+
+
+
+
+
+// server.js
+app.get('/api/question-paper/:id/questions', async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Assuming `questions` and `options` tables are joined to get questions and their options
+        const result = await pool.query(`
+            SELECT q.id AS question_id, q.question_text, o.id AS option_id, o.option_text
+            FROM questions q
+            LEFT JOIN options o ON q.id = o.question_id
+            WHERE q.paper_id = $1
+        `, [id]);
+
+        // Process result to format questions and options correctly
+        const questions = processQuestionsAndOptions(result.rows);
+
+        res.json({ success: true, questions });
+    } catch (err) {
+        console.error('Error fetching questions:', err);
+        res.status(500).json({ success: false, message: 'Failed to fetch questions' });
+    }
+});
+
+function processQuestionsAndOptions(rows) {
+    const questions = {};
+    rows.forEach(row => {
+        if (!questions[row.question_id]) {
+            questions[row.question_id] = {
+                id: row.question_id,
+                question_text: row.question_text,
+                options: []
+            };
+        }
+        questions[row.question_id].options.push({
+            id: row.option_id,
+            option_text: row.option_text
+        });
+    });
+    return Object.values(questions);
+}
+
+app.get('/api/submissions/status/:paperId', async (req, res) => {
+    const { paperId } = req.params;
+    const studentId = req.session.studentId; // Retrieve studentId from session
+
+    if (!studentId) {
+        return res.status(400).json({ success: false, message: 'Not authenticated' });
+    }
+
+    try {
+        const result = await pool.query(
+            'SELECT * FROM submissions WHERE student_id = $1 AND paper_id = $2',
+            [studentId, paperId]
+        );
+
+        const submitted = result.rows.length > 0;
+
+        res.json({ success: true, submitted });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Failed to check submission status.' });
     }
 });
 
