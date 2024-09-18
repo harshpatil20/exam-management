@@ -38,18 +38,13 @@ const pool = new Pool({
 app.use(bodyParser.json());
 
 app.post('/api/login', async (req, res) => {
-    console.log("in server js");
     const { username, password } = req.body;
-    console.log(req.body)
     try {
         const result = await pool.query('SELECT password FROM users WHERE username = $1', [username]);
-console.log("in try")
         if (result.rows.length > 0) {
             const storedPassword = result.rows[0].password;
-console.log(storedPassword)
 
             const match = await bcrypt.compare(password, storedPassword);
-           console.log(match)
             if (match) {
                 console.log("logeed in")
                 res.json({ success: true });
@@ -70,7 +65,6 @@ console.log(storedPassword)
 app.post('/api/create-student', async (req, res) => {
     const { name, classRoom, branch, userId, password } = req.body;
 
-    console.log(req.body.password+" create student body")
 
     try {
         // Hash the plain-text password
@@ -92,7 +86,6 @@ app.post('/api/create-student', async (req, res) => {
 
 app.post('/api/student-login', async (req, res) => {
     const { userId, password } = req.body;
-    console.log(":::in student login api:::")
 
     try {
         // Check if the student exists
@@ -100,7 +93,6 @@ app.post('/api/student-login', async (req, res) => {
 
         if (result.rows.length === 0) {
             // If no student with that userId is found
-            console.log('User not found');
             return res.json({ success: false, message: 'User not found' });
         }
 
@@ -109,11 +101,9 @@ app.post('/api/student-login', async (req, res) => {
         const studentId = result.rows[0].id;
         req.session.studentId = studentId;
          sId = req.session.studentId
-        console.log( req.session.studentId);
 
         // Compare the plain text password with the hashed password stored in DB
         const match = await bcrypt.compare(password, student.password);
-console.log(match)
         if (match) {
             // Password matches
             console.log("matched")
@@ -129,14 +119,8 @@ console.log(match)
 });
 
 
-// server.js (add this route to your existing server)
-// server.js (add this route to your existing server)
 app.post('/api/create-question-paper', async (req, res) => {
     const { title, questions } = req.body;
-
-    console.log(req.body);
-    console.log("Received title:", title); 
-    console.log("Received questions:", questions);
 
     try {
         // Insert the question paper
@@ -165,11 +149,7 @@ app.post('/api/create-question-paper', async (req, res) => {
                 );
                 const optionId = optionResult.rows[0].id;
 
-                console.log("option id    :::  "+optionId)
 
-                // Check if this is the correct option and store the option ID
-                console.log(i)
-                console.log(question.correctOption)
                
                 if ( i === parseInt(question.correctOption, 10)) {
                     correctOptionId = optionId;
@@ -209,7 +189,6 @@ app.get('/api/question-papers', async (req, res) => {
 // server.js (Add this route to your server)
 app.delete('/api/question-paper/:id', async (req, res) => {
     const { id } = req.params;
-    console.log(req.params);
     try {
         const result = await pool.query('DELETE FROM question_papers WHERE id = $1', [id]);
         if (result.rowCount > 0) {
@@ -301,7 +280,6 @@ app.post('/api/question-paper/:id/submit', async (req, res) => {
     const { answers } = req.body;
     const studentId = req.session.studentId; // Retrieve studentId from session
 
-    console.log(sId+"new session submit")
     // if (!studentId) {
     //     return res.status(400).json({ success: false, message: 'Not authenticated' });
     // }
@@ -328,7 +306,6 @@ app.post('/api/question-paper/:id/submit', async (req, res) => {
             const questionId = question.id;
             const correctOptionId = question.correct_option_id;
 
-            console.log("corerct option ::::"+correctOptionId);
 
             // Compare the submitted answer with the correct answer
             const submittedOptionId = answers[questionId]; // Get the submitted option for this question
