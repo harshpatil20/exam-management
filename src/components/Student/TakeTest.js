@@ -94,34 +94,36 @@ const TakeTest = () => {
     return (
         <div className="take-test">
             <h1>Take Test</h1>
-            {questions.length === 0 ? (
-                <p>No questions available for this test.</p>
+            {isTestSubmitted ? (
+                <p>You have already submitted this test.</p> 
             ) : (
-                <div className="questions-list">
-                    {questions.map((question) => (
-                        <div key={question.id} className="question-item">
-                            <h4>{question.question_text}</h4>
-                            {question.options.map((option) => (
-                                <label key={option.id} className="option-label">
-                                    <input
-                                        type="radio"
-                                        name={`question-${question.id}`}
-                                        value={option.id}
-                                        onChange={() => handleOptionChange(question.id, option.id)}
-                                    />
-                                    {option.option_text}
-                                </label>
+                <>
+                    {questions.length === 0 ? (
+                        <p>No questions available for this test.</p>
+                    ) : (
+                        <div className="questions-list">
+                            {questions.map((question) => (
+                                <div key={question.id} className="question-item">
+                                    <h4>{question.question_text}</h4>
+                                    {question.options.map((option) => (
+                                        <label key={option.id} className="option-label">
+                                            <input
+                                                type="radio"
+                                                name={`question-${question.id}`}
+                                                value={option.id}
+                                                onChange={() => handleOptionChange(question.id, option.id)}
+                                            />
+                                            {option.option_text}
+                                        </label>
+                                    ))}
+                                </div>
                             ))}
+                            <button className="submit-btn" onClick={handleSubmit}>
+                                Submit Test
+                            </button>
                         </div>
-                    ))}
-                     <button 
-                        className="submit-btn" 
-                        onClick={handleSubmit} 
-                        disabled={isTestSubmitted} // Disable button if test is already submitted
-                    >
-                       {isTestSubmitted ? 'Test Submitted' : 'Submit Test'}
-                    </button>
-                </div>
+                    )}
+                </>
             )}
         </div>
     );

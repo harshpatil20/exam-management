@@ -389,14 +389,17 @@ app.get('/api/submissions/status/:paperId', async (req, res) => {
     const { paperId } = req.params;
     const studentId = req.session.studentId; // Retrieve studentId from session
 
-    if (!studentId) {
+    console.log("in the main api")
+    console.log(sId);
+
+    if (!sId) {
         return res.status(400).json({ success: false, message: 'Not authenticated' });
     }
 
     try {
         const result = await pool.query(
             'SELECT * FROM submissions WHERE student_id = $1 AND paper_id = $2',
-            [studentId, paperId]
+            [sId, paperId]
         );
 
         const submitted = result.rows.length > 0;
