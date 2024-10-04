@@ -6,6 +6,7 @@ import './style/TakeTest.css';
 
 import { useStudent } from '../../context/StudentContext';
 
+import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 
 const TakeTest = () => {
     const { id } = useParams();  // Get question paper ID from URL
@@ -15,7 +16,13 @@ const TakeTest = () => {
     const [questions, setQuestions] = useState([]);
     const [answers, setAnswers] = useState({});
     // const studentId = localStorage.getItem('studentId');
+    const [scoreData, setScoreData] = useState(null); 
+    const [percentage, setPercentage] = useState(null);
 
+    // const studentId = useStudent().id;
+
+
+    let tempVar;
 
 
     useEffect(() => {
@@ -40,6 +47,7 @@ const TakeTest = () => {
                     const response = await axios.get(`http://localhost:5000/api/submissions/status/${id}`);
                     if (response.data.submitted) {
                         setIsTestSubmitted(true);
+                        fetchScore();
                     }
                 } catch (error) {
                     console.error('Error checking submission status:', error);
@@ -53,6 +61,20 @@ const TakeTest = () => {
     }, [id]);
 
 
+    const fetchScore = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/scores/${id}`);
+            if (response.data.success) {
+                console.log("Fetched Percentage:", response.data.percentage); 
+                setPercentage(response.data.percentage);
+                tempVar = response.data.percentage;
+            } else {
+                alert('Could not fetch score');
+            }
+        } catch (error) {
+            console.error('Error fetching score:', error);
+        }
+    };
     
     // Handle option selection
     const handleOptionChange = (questionId, optionId) => {
@@ -91,11 +113,31 @@ const TakeTest = () => {
     }
     };
 
+    console.log(percentage)
+
+    const data = percentage
+        ? [
+            { name: 'Correct', value: percentage },
+            { name: 'Incorrect', value: 100 - percentage },
+        ]
+        : [];
+
+    const COLORS = ['#00C49F', '#FF8042'];
+
     return (
         <div className="take-test">
             <h1>Take Test</h1>
             {isTestSubmitted ? (
-                <p>You have already submitted this test.</p> 
+                <>
+                    <p>Thank you for your response.</p>
+                    {percentage !== null ? (
+                        <div className="score-display">
+                            <h2>Your Score: {percentage}%</h2>
+                        </div>
+                    ) : (
+                        <p>Loading your score...</p>
+                    )}
+                </>
             ) : (
                 <>
                     {questions.length === 0 ? (

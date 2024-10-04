@@ -412,6 +412,33 @@ app.get('/api/submissions/status/:paperId', async (req, res) => {
 });
 
 
+// In your backend
+// Backend API to get the percentage score for a specific student and question paper
+app.get('/api/scores/:paperId', async (req, res) => {
+    const {paperId } = req.params;
+
+    try {
+        const result = await pool.query(
+            'SELECT score FROM scores WHERE student_id = $1 AND paper_id = $2',
+            [sId, paperId]
+        );
+        console.log("in the api")
+        if (result.rows.length > 0) {
+            const percentage = result.rows[0].score;
+            console.log(result.rows[0].score);
+            console.log(percentage);
+            res.json({ success: true, percentage });
+        } else {
+            res.json({ success: false, message: 'Score not found' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+
+
 app.listen(5000, () => {
     console.log('Server is running on port 5000');
 });
